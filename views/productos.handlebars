@@ -1,0 +1,24 @@
+<h1>Productos Cargados</h1>
+
+{{#if prods }}
+    <table style="width:100% ; border:1px solid black">
+        <th>Producto</th>
+        <th>Precio</th>
+        <th>Imagen</th>
+        {{#each prods}}
+            <tr>
+                <td style="border:1px solid black">{{this.title}}</td>
+                <td style="border:1px solid black">{{this.price}}</td>
+                <td style="border:1px solid black">
+                    <img src="{{this.thumbnail}}" width="100" height="100">
+                </td>
+            </tr>
+        {{/each}}
+    </table>
+{{else}}
+    <h3>No se encontraron productos cargados</h3>
+{{/if}}
+
+<form id="productForm" action="/" method="get">
+    <button>Cargar mas productos</button>
+</form>
