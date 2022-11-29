@@ -1,30 +1,45 @@
 const express = require('express')
+const { Server } = require('socket.io')
 const handlebars = require('express-handlebars')
 const app = express()
-const productsRouter = require('./routes/products')
+const pathHistory = './history.txt';
+const fs = require('fs');
 
 const server = app.listen(8080, () => console.log('Server UP'))
+const io = new Server(server)
+
 app.use(express.urlencoded({extended: true}))
+app.use(express.static('public'))
 
 app.engine('handlebars', handlebars.engine())
-app.set('views', './views')
+app.set('views', 'public/views')
 app.set('view engine', 'handlebars')
 
-let prod = []
+let productos = []
 
 app.get('/', (req, resp)=>{
-    resp.render('formulario')
+    resp.render('home')
 })
 
-app.get('/productos', (req, resp)=>{
-    resp.render('productos', {prods: prod})
-})
+let historial = []
 
-app.post('/productos', (req, resp)=>{
-    prod.push(req.body)
-    resp.redirect('/')
-})
+const writeFileMessages = (mensajes) => {
 
-app.use(express.json())
-app.use(express.static('public'))
-app.use('/api/productos', productsRouter)
+    fs.promises.writeFile(pathHistory, JSON.stringify(mensajes, null, 2));
+}
+
+io.on('connection', socket =>{
+    console.log("New client connected")
+    socket.emit('products', productos)
+    socket.emit("history", historial)
+    socket.on('product', data => {
+        productos.push(data)
+        io.emit('products', productos)
+    })
+    socket.on("chat", data =>{
+        historial.push(data)
+        writeFileMessages(historial)
+        io.emit("history", historial)
+    })
+    
+})
