@@ -2,11 +2,18 @@ const express = require('express')
 const { Server } = require('socket.io')
 const handlebars = require('express-handlebars')
 const app = express()
-const pathHistory = './history.txt';
-const fs = require('fs');
+const TableManager = require('./controllers/tableManager.js')
+const optionChat = require('./options/chatDB.js')
+const optionProd = require('./options/productDb.js')
 
 const server = app.listen(8080, () => console.log('Server UP'))
 const io = new Server(server)
+
+const tablaChat = 'chat'
+const tablaProductos = 'products'
+
+let manejadorChat = new TableManager( optionChat, tablaChat)
+let manejadorProductos = new TableManager(optionProd, tablaProductos)
 
 app.use(express.urlencoded({extended: true}))
 app.use(express.static('public'))
@@ -15,30 +22,29 @@ app.engine('handlebars', handlebars.engine())
 app.set('views', 'public/views')
 app.set('view engine', 'handlebars')
 
-let productos = []
-
-app.get('/', (req, resp)=>{
+app.get('/', async (req, resp)=>{
+    await manejadorProductos.createTable()
+    await manejadorChat.createTable()
     resp.render('home')
 })
 
 let historial = []
+let productos = []
 
-const writeFileMessages = (mensajes) => {
-
-    fs.promises.writeFile(pathHistory, JSON.stringify(mensajes, null, 2));
-}
-
-io.on('connection', socket =>{
+io.on('connection', async socket =>{
     console.log("New client connected")
+    productos = await manejadorProductos.getInfo()
+    historial = await manejadorChat.getInfo()
     socket.emit('products', productos)
     socket.emit("history", historial)
-    socket.on('product', data => {
-        productos.push(data)
+    socket.on('product', async data => {
+        await manejadorProductos.save(data)
+        productos = await manejadorProductos.getInfo()
         io.emit('products', productos)
     })
-    socket.on("chat", data =>{
-        historial.push(data)
-        writeFileMessages(historial)
+    socket.on("chat", async data =>{
+        await manejadorChat.save(data)
+        historial = await manejadorChat.getInfo()
         io.emit("history", historial)
     })
     
