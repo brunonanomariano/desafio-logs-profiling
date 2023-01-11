@@ -5,6 +5,7 @@ const app = express()
 const TableManager = require('./controllers/tableManager.js')
 const optionChat = require('./options/chatDB.js')
 const optionProd = require('./options/productDb.js')
+const fakerProducts = require('./options/fakerProducts')
 
 const server = app.listen(8080, () => console.log('Server UP'))
 const io = new Server(server)
@@ -28,15 +29,22 @@ app.get('/', async (req, resp)=>{
     resp.render('home')
 })
 
+app.get('/api/productos-test', async (req, resp)=>{
+    resp.render('homeTester')
+})
+
 let historial = []
 let productos = []
+let productosTest = []
 
 io.on('connection', async socket =>{
     console.log("New client connected")
+    productosTest = fakerProducts
     productos = await manejadorProductos.getInfo()
     historial = await manejadorChat.getInfo()
     socket.emit('products', productos)
     socket.emit("history", historial)
+    socket.emit("productsTest", productosTest)
     socket.on('product', async data => {
         await manejadorProductos.save(data)
         productos = await manejadorProductos.getInfo()
