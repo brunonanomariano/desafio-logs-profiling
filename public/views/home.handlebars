@@ -1,4 +1,8 @@
-<h1>Formulario de Carga</h1>
+{{#if usuario }}
+    <h1>Bienvenido {{usuario}} <a href="/logout"><button id="deslogeoBtn">Logout</button></a></h1>
+{{/if}}
+
+<h2>Formulario de Carga</h2>
     <form id="productForm">
         <label>Titulo</label>
         <input name="title" id="formTitle">
