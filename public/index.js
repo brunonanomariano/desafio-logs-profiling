@@ -10,6 +10,7 @@ const formTitle = document.getElementById("formTitle")
 const formPrice = document.getElementById("formPrice")
 const formThumbnail = document.getElementById("formThumbnail")
 const errorForm = document.getElementById("errorForm")
+const registroUsuario = document.getElementById("registerForm")
 
 //Al iniciar la pagina se deshabilitan el chatBox y el boton de enviar hasta no completar el correo
 chatBox.disabled = true
