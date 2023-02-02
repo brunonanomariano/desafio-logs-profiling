@@ -13,8 +13,17 @@ const mongoose = require('mongoose')
 const MongoStore = require('connect-mongo')
 const initializePassport = require('./passport.config')
 const passport = require('passport')
+const dotenv = require('dotenv')
+const yargs = require('yargs')
+const { number } = require('yargs')
+const randomsRouter = require('./routes/randoms')
+const fork = require('child_process')
 
-const connection = mongoose.connect("mongodb://localhost:27017/registerUsers", {
+dotenv.config()
+
+let puerto = 8080
+
+const connection = mongoose.connect(process.env.MONGO_CONNECT, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
@@ -24,8 +33,8 @@ const Store = FileStore(session)
 app.use(cookieParser());
 
 app.use(session({
-    store: MongoStore.create({mongoUrl: 'mongodb://localhost:27017/sessionsUsers'}),
-    secret: 'b4ck3end',
+    store: MongoStore.create({mongoUrl: process.env.MONGO_URL}),
+    secret: process.env.SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -33,7 +42,29 @@ app.use(session({
       },
 }))
 
-const server = app.listen(8080, () => console.log('Server UP'))
+yargs.command({
+    command: 'set',
+    describe: 'Set a PORT',
+    builder: {
+        port: {
+            describe: 'PORT',
+            demandOption: true,
+            type: 'number'
+        }
+    },
+    handler: function(argv){
+        if ( isNaN(argv.port) || argv.port===0 ){
+            console.log("El puerto seteado es invalido, por defecto se utilizara el puerto 8080")
+        } else {
+            puerto = argv.port
+            console.log(`Puerto ${puerto} seteado con exito`)
+        }
+    }
+})
+
+yargs.parse()
+
+const server = app.listen(puerto, () => console.log('Server UP'))
 const io = new Server(server)
 
 const tablaChat = 'chat'
@@ -114,6 +145,21 @@ app.get('/logout', (req, res) => {
 app.get('/api/productos-test', async (req, resp)=>{
     resp.render('homeTester')
 })
+
+app.get('/info', async (req, res)=>{
+    
+    res.render('info',
+                {argEntrada: process.argv,
+                 carpetaProyecto: process.cwd(),
+                 processId: process.pid,
+                 versionNode: process.version,
+                 plataforma: process.platform,
+                 pathEjecucion: process.execPath,
+                 memoriaUsada: process.memoryUsage().rss
+                })
+})
+
+app.use('/api/randoms', randomsRouter)
 
 let historial = []
 let productos = []
