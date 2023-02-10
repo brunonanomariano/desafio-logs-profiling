@@ -1,0 +1,60 @@
+{
+    "apps":[
+        {
+            "name": "normal process",
+            "script": "app.js",
+            "exec_mode" :"cluster",
+            "watch" : true,
+            "env":{
+                "PORT":"8080"
+            }
+        },
+        {
+            "name": "random process1",
+            "script": "app.js",
+            "exec_mode" :"cluster",
+            "watch" : true,
+            "env":{
+                "PORT":"8081"
+            }
+        },
+        {
+            "name": "random process2",
+            "script": "app.js",
+            "exec_mode" :"cluster",
+            "watch" : true,
+            "env":{
+                "PORT":"8082"
+            }
+        },
+        {
+            "name": "random process3",
+            "script": "app.js",
+            "exec_mode" :"cluster",
+            "watch" : true,
+            "env":{
+                "PORT":"8083"
+            },
+            "args": "--PORT=8083"
+        },
+        {
+            "name": "random process4",
+            "script": "app.js",
+            "exec_mode" :"cluster",
+            "watch" : true,
+            "env":{
+                "PORT":"8084"
+            }
+        },
+        {
+            "name": "random process5",
+            "script": "app.js",
+            "exec_mode" :"cluster",
+            "watch" : true,
+            "env":{
+                "PORT":"8085"
+            }
+        }
+
+    ]
+}

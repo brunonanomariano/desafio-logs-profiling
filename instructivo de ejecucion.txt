@@ -1,0 +1,17 @@
+Para ejecutar mediante node o nodemon:
+	node app.js set --port=(nro de puerto) --mode=(CLUSTER o FORK)
+
+Para ejecutar mediante PM2:
+	pm2 start process.json
+
+Para el caso de PM2 se debe configurar en process.json el modo y puerto con que se desea iniciar el process, por ejemplo:
+
+	{
+            "name": "normal process",
+            "script": "app.js",
+            "exec_mode" :"cluster",
+            "watch" : true,
+            "env":{
+                "PORT":"8080"
+            }
+        },
