@@ -1,5 +1,6 @@
 const knex = require('knex');
 const { json } = require('stream/consumers');
+const {loggerConsola, loggerWarning, loggerError} = require('../utils.js')
 
 let db 
 let tabla
@@ -36,12 +37,25 @@ class TableManger {
     }
 
     save = async (datos) => {
-        await this.db(this.tabla).insert(datos)  
+        try{
+            await this.db(this.tabla).insert(datos)
+        } catch (err){
+            loggerConsola.error(`Error al escribir informacion en la tabla ${this.tabla}`)
+            loggerError.error(`Error al escribir informacion en la tabla ${this.tabla}`)
+        }
+          
     }
 
     getInfo = async () => {
-        let result = await this.db.from(this.tabla).select('*')
-        return JSON.parse(JSON.stringify(result))
+        try{
+            let result = await this.db.from(this.tabla).select('*')
+            return JSON.parse(JSON.stringify(result))    
+        } catch (error){
+            loggerConsola.error(`Error al leer informacion en la tabla ${this.tabla}`)
+            loggerError.error(`Error al leer informacion en la tabla ${this.tabla}`)
+            return []
+        }
+        
     }
 
 }
